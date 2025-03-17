@@ -86,6 +86,11 @@ const fetchUserEmail = async () => {
 
 const submit = handleSubmit(async (values) => {
   const email = await fetchUserEmail();
+
+  const now = new Date();
+const currentDateTime = now.toISOString().replace("T", " ").slice(0, 19); 
+
+
   loading.value = true;
 
   const { error } = await supabase
@@ -96,13 +101,14 @@ const submit = handleSubmit(async (values) => {
         workout_name: values.name,
         duration_minutes: values.minutes,
         difficulty_level: values.select,
+        date: currentDateTime,
       },
     ]);
 
   loading.value = false;
 
   if (!error) {
-    resetForm(); 
+    resetForm();
     eventBus.emit("WorkOutAdded");
     dialog.value = false;
   } else {

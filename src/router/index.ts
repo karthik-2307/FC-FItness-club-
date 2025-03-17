@@ -39,19 +39,19 @@ const routes = [
       {
         path: "login",
         name: "Login",
-        component: () => import("@/components/logIn.vue"),
+        component: () => import("@/components/Authentication/logIn.vue"),
         beforeEnter: loggedInGuard,
       },
       {
         path: "SignUpEmailNPass",
         name: "SignUpEmailNPass",
-        component: () => import("@/components/formSignUp.vue"),
+        component: () => import("@/components/Authentication/formSignup.vue"),
         beforeEnter: loggedInGuard,
       },
       {
         path: "SignInG",
         name: "SignInG",
-        component: () => import("@/components/emailLogin.vue"),
+        component: () => import("@/components/Authentication/emailLogin.vue"),
         beforeEnter: loggedInGuard,
       },
     ],

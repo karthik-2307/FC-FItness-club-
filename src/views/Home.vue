@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from "@/stores/userStore";
-import addWorkout from "@/components/addWorkout.vue";
-import myWorkouts from "@/components/myWorkouts.vue";
+import addWorkout from "@/components/WorkOuts/addWorkout.vue";
+import myWorkouts from "@/components/WorkOuts/myWorkouts.vue";
 const UserStore = useUserStore();
 const logout = () => {
   console.log("hel");

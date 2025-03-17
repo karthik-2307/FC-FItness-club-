@@ -7,14 +7,14 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AddWorkout: typeof import('./src/components/addWorkout.vue')['default']
-    EmailLogin: typeof import('./src/components/emailLogin.vue')['default']
-    FormLogin: typeof import('./src/components/formLogin.vue')['default']
-    FormSignup: typeof import('./src/components/formSignup.vue')['default']
-    GoogleAuth: typeof import('./src/components/googleAuth.vue')['default']
+    AddWorkout: typeof import('./src/components/WorkOuts/addWorkout.vue')['default']
+    EmailLogin: typeof import('./src/components/Authentication/emailLogin.vue')['default']
+    FormLogin: typeof import('./src/components/Authentication/formLogin.vue')['default']
+    FormSignup: typeof import('./src/components/Authentication/formSignup.vue')['default']
+    GoogleAuth: typeof import('./src/components/Authentication/googleAuth.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
-    LogIn: typeof import('./src/components/logIn.vue')['default']
-    MyWorkouts: typeof import('./src/components/myWorkouts.vue')['default']
+    LogIn: typeof import('./src/components/Authentication/logIn.vue')['default']
+    MyWorkouts: typeof import('./src/components/WorkOuts/myWorkouts.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
   }
