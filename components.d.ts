@@ -8,14 +8,17 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AddWorkout: typeof import('./src/components/WorkOuts/addWorkout.vue')['default']
+    Dateview: typeof import('./src/components/test/dateview.vue')['default']
     EmailLogin: typeof import('./src/components/Authentication/emailLogin.vue')['default']
     FormLogin: typeof import('./src/components/Authentication/formLogin.vue')['default']
     FormSignup: typeof import('./src/components/Authentication/formSignup.vue')['default']
     GoogleAuth: typeof import('./src/components/Authentication/googleAuth.vue')['default']
+    Heatmap: typeof import('./src/components/WorkOuts/Heatmap.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     LogIn: typeof import('./src/components/Authentication/logIn.vue')['default']
     MyWorkouts: typeof import('./src/components/WorkOuts/myWorkouts.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    WorkoutCheckIn: typeof import('./src/components/WorkOuts/workoutCheckIn.vue')['default']
   }
 }

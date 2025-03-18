@@ -104,7 +104,17 @@ const currentDateTime = now.toISOString().replace("T", " ").slice(0, 19);
         date: currentDateTime,
       },
     ]);
-
+    const { error1 } = await supabase
+    .from("workout_checkins")
+    .insert([
+      {
+        email_address: email,
+        workout_name: values.name,
+        current_streak: 0,
+        longest_streak: 0,
+        checkin_dates: [],
+      },
+    ]);
   loading.value = false;
 
   if (!error) {

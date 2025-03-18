@@ -1,6 +1,6 @@
 import { supabase } from "./supabase";
 
-const fetchUserEmail = async () => {
+export const fetchUserEmail = async () => {
     
     const { data, error } = await supabase.auth.getUser();
     if (error) {

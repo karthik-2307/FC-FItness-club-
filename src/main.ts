@@ -18,7 +18,9 @@ const app = createApp(App);
 
 // Create Pinia instance
 const pinia = createPinia();
+import CalendarHeatmap  from 'vue3-calendar-heatmap'
 
+app.use(CalendarHeatmap )
 // Use Pinia
 app.use(pinia);
 

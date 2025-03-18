@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from "vue-router";
 import { supabase } from "@/composables/supabase";
+import path from "path";
 
 const loginRoute = { name: "Login" };
 const loggedInRoute = { name: "Home" };
@@ -54,6 +55,18 @@ const routes = [
         component: () => import("@/components/Authentication/emailLogin.vue"),
         beforeEnter: loggedInGuard,
       },
+      {
+        path:"CheckIn",
+        name:"checkIn",
+        component: () => import("@/components/WorkOuts/workoutCheckIn.vue"),
+        beforeEnter: loginGuard,
+      },
+      {
+        path:"heatmap",
+        name:"heatmap",
+        component:()=>import("@/components/WorkOuts/Heatmap.vue"),
+        beforeEnter: loginGuard,
+      }
     ],
   },
 ];
