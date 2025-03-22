@@ -57,7 +57,7 @@ const routes = [
       },
       {
         path: "CheckIn",
-        name: "checkIn",
+        name: "CheckIn",
         component: () => import("@/components/WorkOuts/workoutCheckIn.vue"),
         beforeEnter: loginGuard,
       },
@@ -67,6 +67,16 @@ const routes = [
         component: () => import("@/components/WorkOuts/Heatmap.vue"),
         beforeEnter: loginGuard,
       },
+      {
+        path:'newuser',
+        name:'newuser',
+        component:()=>import('@/components/Authentication/newUserName.vue')
+      },
+      {
+        path:'myWorkouts',
+        name:'myWorkouts',
+        component:()=>import('@/components/WorkOuts/myWorkouts.vue')
+      }
     ],
   },
 ];

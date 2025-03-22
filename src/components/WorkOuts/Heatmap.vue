@@ -1,16 +1,27 @@
 <template>
+   <v-row justify="center">
+      <v-col cols="12" md="6">
+        <v-select
+          v-model="selectedYear"
+          :items="['current', ...availableYears]"
+          label="Select Year"
+          @update:modelValue="updateYear"
+          outlined
+          dense
+        ></v-select>
+      </v-col>
+    </v-row>
   <div>
-    <label for="year">Select Year:</label>
-    <select id="year" v-model="selectedYear" @change="updateYear">
-      <option value="current">Last 12 Months</option>
-      <option v-for="year in availableYears" :key="year" :value="year">
-        {{ year }}
-      </option>
-    </select>
-
     <div v-for="(workout, index) in availableWorkouts" :key="workout">
-      <h3>{{ workout }}</h3>
+      <v-container>
+        <h3>{{ workout }}</h3>
       <div :ref="(el) => setHeatmapRef(el, index)"></div>
+      <v-card >
+      <div :ref="(el) => setHeatmapRef(el, index)"></div>
+      </v-card>
+      </v-container>
+      
+
     </div>
   </div>
 </template>
@@ -178,7 +189,8 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
     .style("border-radius", "5px")
     .style("font-size", "12px")
     .style("pointer-events", "none")
-    .style("opacity", 0);
+    .style("opacity", 0)
+    .style( "z-index", 1000);
 
   // 🟢 Generate heatmap cells with tooltips
   svg
@@ -198,7 +210,8 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
         .html(`${formatTime(d)}<br>Check-ins: ${checkins}`)
         .style("left", `${event.pageX + 10}px`)
         .style("top", `${event.pageY - 20}px`)
-        .style("opacity", 1);
+        .style("opacity", 1)
+        .style( "z-index", 1000);
     })
     .on("mousemove", function (event) {
       tooltip
@@ -206,7 +219,8 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
         .style("top", `${event.pageY - 20}px`);
     })
     .on("mouseout", function () {
-      tooltip.style("opacity", 0);
+
+      tooltip.style("opacity", 0)
     });
 }
 </script>
