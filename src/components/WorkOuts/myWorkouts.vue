@@ -20,10 +20,20 @@
             <td>{{ item.difficulty_level }}</td>
             <td>{{ item.duration_minutes }} Minutes</td>
             <td>
-              <v-btn icon="mdi-pencil" variant="text" color="primary" @click="openEditDialog(item)"></v-btn>
+              <v-btn
+                icon="mdi-pencil"
+                variant="text"
+                color="primary"
+                @click="openEditDialog(item)"
+              ></v-btn>
             </td>
             <td>
-              <v-btn icon="mdi-delete" variant="text" color="red" @click="deleteWorkout(item.id)"></v-btn>
+              <v-btn
+                icon="mdi-delete"
+                variant="text"
+                color="red"
+                @click="deleteWorkout(item.id)"
+              ></v-btn>
             </td>
           </tr>
         </tbody>
@@ -39,14 +49,28 @@
         <v-card-title>Edit Workout</v-card-title>
         <v-divider></v-divider>
         <v-card-text>
-          <v-text-field v-model="editItemData.workout_name" label="Workout Name" outlined></v-text-field>
-          <v-select v-model="editItemData.difficulty_level" :items="difficultyLevels" label="Difficulty Level" outlined></v-select>
-          <v-text-field v-model="editItemData.duration_minutes" type="number" label="Duration (Minutes)" outlined></v-text-field>
+          <v-text-field
+            v-model="editItemData.workout_name"
+            label="Workout Name"
+            outlined
+          ></v-text-field>
+          <v-select
+            v-model="editItemData.difficulty_level"
+            :items="difficultyLevels"
+            label="Difficulty Level"
+            outlined
+          ></v-select>
+          <v-text-field
+            v-model="editItemData.duration_minutes"
+            type="number"
+            label="Duration (Minutes)"
+            outlined
+          ></v-text-field>
         </v-card-text>
         <v-divider></v-divider>
         <v-card-actions class="justify-end">
-          <v-btn  text @click="editDialog = false">Cancel</v-btn>
-          <v-btn  text @click="updateItem">Update</v-btn>
+          <v-btn text @click="editDialog = false">Cancel</v-btn>
+          <v-btn text @click="updateItem">Update</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -85,20 +109,20 @@ const openEditDialog = (item: any) => {
   editItemData.value = { ...item };
   editDialog.value = true;
 };
-const deleteWorkout=async(id:number)=>{
+const deleteWorkout = async (id: number) => {
   const { error } = await supabase
-  .from('workoutroutines')
-  .delete()
-  .eq('id', id)
-  eventBus.emit('workOutDataUpdated')
-}
+    .from("workoutroutines")
+    .delete()
+    .eq("id", id);
+  eventBus.emit("workOutDataUpdated");
+};
 const updateItem = async () => {
   const { data, error } = await supabase
     .from("workoutroutines")
     .update({
       workout_name: editItemData.value.workout_name,
       duration_minutes: editItemData.value.duration_minutes,
-      difficulty_level: editItemData.value.difficulty_level
+      difficulty_level: editItemData.value.difficulty_level,
     })
     .eq("id", editItemData.value.id)
     .select();
@@ -109,11 +133,11 @@ const updateItem = async () => {
   }
 
   editDialog.value = false;
- eventBus.emit('workOutDataUpdated');
+  eventBus.emit("workOutDataUpdated");
 };
-eventBus.on('workOutDataUpdated',()=>{
+eventBus.on("workOutDataUpdated", () => {
   getUserWorkouts();
-})
+});
 const getUserWorkouts = async () => {
   if (!email.value) return;
 
@@ -121,7 +145,7 @@ const getUserWorkouts = async () => {
     .from("workoutroutines")
     .select("*")
     .eq("email_address", email.value)
-    .order('id', { ascending: false })
+    .order("id", { ascending: false });
 
   if (error) {
     console.error("Error fetching workouts:", error);

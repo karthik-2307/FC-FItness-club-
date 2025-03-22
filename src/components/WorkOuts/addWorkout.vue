@@ -88,33 +88,28 @@ const submit = handleSubmit(async (values) => {
   const email = await fetchUserEmail();
 
   const now = new Date();
-const currentDateTime = now.toISOString().replace("T", " ").slice(0, 19); 
-
+  const currentDateTime = now.toISOString().replace("T", " ").slice(0, 19);
 
   loading.value = true;
 
-  const { error } = await supabase
-    .from("workoutroutines")
-    .insert([
-      {
-        email_address: email,
-        workout_name: values.name,
-        duration_minutes: values.minutes,
-        difficulty_level: values.select,
-        date: currentDateTime,
-      },
-    ]);
-    const { error1 } = await supabase
-    .from("workout_checkins")
-    .insert([
-      {
-        email_address: email,
-        workout_name: values.name,
-        current_streak: 0,
-        longest_streak: 0,
-        checkin_dates: [],
-      },
-    ]);
+  const { error } = await supabase.from("workoutroutines").insert([
+    {
+      email_address: email,
+      workout_name: values.name,
+      duration_minutes: values.minutes,
+      difficulty_level: values.select,
+      date: currentDateTime,
+    },
+  ]);
+  const { error1 } = await supabase.from("workout_checkins").insert([
+    {
+      email_address: email,
+      workout_name: values.name,
+      current_streak: 0,
+      longest_streak: 0,
+      checkin_dates: [],
+    },
+  ]);
   loading.value = false;
 
   if (!error) {

@@ -7,9 +7,9 @@ const UserStore = useUserStore();
 const logout = () => {
   UserStore.logout();
 };
-const navToCheckIn=()=>{
-  router.push({name:'checkIn'});
-}
+const navToCheckIn = () => {
+  router.push({ name: "checkIn" });
+};
 </script>
 
 <template>

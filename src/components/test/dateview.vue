@@ -62,86 +62,88 @@
   }
   </style>
    -->
-   <template>
-    <div class="habit-tracker">
-      <h2>Workout Tracker</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Workout</th>
-            <th v-for="day in days" :key="day">{{ day }}</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="workout in workouts" :key="workout.name">
-            <td>{{ workout.name }}</td>
-            <td v-for="day in days" :key="day">
-              <input
-                type="checkbox"
-                :checked="isChecked(workout.name, day)"
-                @change="toggleCheckin(workout.name, day)"
-              />
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </template>
-  
-  <script setup>
-  import { ref } from "vue";
-  
-  // Sample data (Replace with Supabase data)
-  const workouts = ref([
-    { name: "Push-ups" },
-    { name: "Running" },
-    { name: "Squats" },
-    { name: "Yoga" },
-  ]);
-  
-  const days = ["SUN", "MON", "TUES", "WED", "THU", "FRI", "SAT"]; // Weekdays
-  
-  // Mock check-in data (Replace with fetched data from Supabase)
-  const checkinDates = ref({
-    "Push-ups": ["M", "W", "F"],
-    "Running": ["T", "S"],
-  });
-  
-  // Check if workout is checked on a given day
-  const isChecked = (workout, day) => {
-    return checkinDates.value[workout]?.includes(day);
-  };
-  
-  // Toggle check-in status
-  const toggleCheckin = (workout, day) => {
-    if (!checkinDates.value[workout]) {
-      checkinDates.value[workout] = [];
-    }
-    if (checkinDates.value[workout].includes(day)) {
-      checkinDates.value[workout] = checkinDates.value[workout].filter((d) => d !== day);
-    } else {
-      checkinDates.value[workout].push(day);
-    }
-  };
-  </script>
-  
-  <style>
-  .habit-tracker {
-    max-width: 600px;
-    margin: auto;
-    text-align: center;
+<template>
+  <div class="habit-tracker">
+    <h2>Workout Tracker</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Workout</th>
+          <th v-for="day in days" :key="day">{{ day }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr v-for="workout in workouts" :key="workout.name">
+          <td>{{ workout.name }}</td>
+          <td v-for="day in days" :key="day">
+            <input
+              type="checkbox"
+              :checked="isChecked(workout.name, day)"
+              @change="toggleCheckin(workout.name, day)"
+            />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</template>
+
+<script setup>
+import { ref } from "vue";
+
+// Sample data (Replace with Supabase data)
+const workouts = ref([
+  { name: "Push-ups" },
+  { name: "Running" },
+  { name: "Squats" },
+  { name: "Yoga" },
+]);
+
+const days = ["SUN", "MON", "TUES", "WED", "THU", "FRI", "SAT"]; // Weekdays
+
+// Mock check-in data (Replace with fetched data from Supabase)
+const checkinDates = ref({
+  "Push-ups": ["M", "W", "F"],
+  Running: ["T", "S"],
+});
+
+// Check if workout is checked on a given day
+const isChecked = (workout, day) => {
+  return checkinDates.value[workout]?.includes(day);
+};
+
+// Toggle check-in status
+const toggleCheckin = (workout, day) => {
+  if (!checkinDates.value[workout]) {
+    checkinDates.value[workout] = [];
   }
-  table {
-    width: 100%;
-    border-collapse: collapse;
+  if (checkinDates.value[workout].includes(day)) {
+    checkinDates.value[workout] = checkinDates.value[workout].filter(
+      (d) => d !== day,
+    );
+  } else {
+    checkinDates.value[workout].push(day);
   }
-  th, td {
-    padding: 10px;
-    border: 1px solid #ddd;
-  }
-  input[type="checkbox"] {
-    width: 18px;
-    height: 18px;
-  }
-  </style>
-  
+};
+</script>
+
+<style>
+.habit-tracker {
+  max-width: 600px;
+  margin: auto;
+  text-align: center;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th,
+td {
+  padding: 10px;
+  border: 1px solid #ddd;
+}
+input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+}
+</style>

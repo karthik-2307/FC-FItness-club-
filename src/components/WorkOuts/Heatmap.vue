@@ -10,7 +10,7 @@
 
     <div v-for="(workout, index) in availableWorkouts" :key="workout">
       <h3>{{ workout }}</h3>
-      <div :ref="el => setHeatmapRef(el, index)"></div>
+      <div :ref="(el) => setHeatmapRef(el, index)"></div>
     </div>
   </div>
 </template>
@@ -27,10 +27,10 @@ const availableYears = ref([2022, 2023, 2024, 2025]);
 const selectedYear = ref("current");
 const userEmail = ref("");
 const availableWorkouts = ref([]);
-eventBus.on('checkedin',async()=>{
+eventBus.on("checkedin", async () => {
   await fetchWorkouts();
   await updateYear();
-})
+});
 onMounted(async () => {
   userEmail.value = await fetchUserEmail();
   console.log("User Email:", userEmail.value);
@@ -57,8 +57,10 @@ async function fetchWorkouts() {
     console.error("Error fetching workouts:", error);
     return;
   }
-  
-  availableWorkouts.value = [...new Set(workoutData.map(entry => entry.workout_name))];
+
+  availableWorkouts.value = [
+    ...new Set(workoutData.map((entry) => entry.workout_name)),
+  ];
   console.log("Fetched Workouts:", availableWorkouts.value);
 
   await updateYear();
@@ -77,8 +79,8 @@ async function fetchHeatmapData(workout, startDate, endDate) {
   }
 
   let dataset = [];
-  checkinData.forEach(entry => {
-    entry.checkin_dates.forEach(date => {
+  checkinData.forEach((entry) => {
+    entry.checkin_dates.forEach((date) => {
       if (new Date(date) >= startDate && new Date(date) <= endDate) {
         dataset.push({ date, value: 1 });
       }
@@ -91,7 +93,7 @@ async function fetchHeatmapData(workout, startDate, endDate) {
 async function updateYear() {
   const today = new Date();
   let startDate, endDate;
-  
+
   if (selectedYear.value === "current") {
     startDate = new Date();
     startDate.setFullYear(today.getFullYear() - 1);
@@ -105,7 +107,7 @@ async function updateYear() {
   for (const workout of availableWorkouts.value) {
     data.value[workout] = await fetchHeatmapData(workout, startDate, endDate);
   }
-  
+
   await nextTick();
   renderHeatmaps(startDate, endDate);
 }
@@ -113,7 +115,12 @@ async function updateYear() {
 function renderHeatmaps(startDate, endDate) {
   availableWorkouts.value.forEach((workout, index) => {
     if (heatmapContainers.value[index]) {
-      renderHeatmap(heatmapContainers.value[index], data.value[workout], startDate, endDate);
+      renderHeatmap(
+        heatmapContainers.value[index],
+        data.value[workout],
+        startDate,
+        endDate,
+      );
     }
   });
 }
@@ -134,7 +141,7 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
     .append("g")
     .attr("transform", `translate(${margin.left},${margin.top})`);
 
-  const maxValue = Math.max(...workoutData.map(d => d.value), 1);
+  const maxValue = Math.max(...workoutData.map((d) => d.value), 1);
   const colorScale = d3
     .scaleLinear()
     .domain([0, maxValue])
@@ -143,24 +150,26 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
   const days = d3.timeDays(startDate, endDate);
   const formatTime = d3.timeFormat("%Y-%m-%d");
   const formatMonthFull = d3.timeFormat("%B");
-  const dataMap = new Map(workoutData.map(d => [d.date, d.value]));
+  const dataMap = new Map(workoutData.map((d) => [d.date, d.value]));
 
   // 🟢 Add month labels
   const months = d3.timeMonths(startDate, endDate);
-  svg.selectAll(".month-label")
+  svg
+    .selectAll(".month-label")
     .data(months)
     .enter()
     .append("text")
     .attr("class", "month-label")
-    .attr("x", d => d3.timeWeek.count(startDate, d) * (cellSize + 2))
+    .attr("x", (d) => d3.timeWeek.count(startDate, d) * (cellSize + 2))
     .attr("y", -5)
     .attr("fill", "#444")
     .attr("font-size", "12px")
     .attr("font-weight", "bold")
-    .text(d => formatMonthFull(d));
+    .text((d) => formatMonthFull(d));
 
   // 🟢 Create Tooltip
-  const tooltip = d3.select(container)
+  const tooltip = d3
+    .select(container)
     .append("div")
     .style("position", "absolute")
     .style("background", "rgba(0, 0, 0, 0.7)")
@@ -172,16 +181,17 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
     .style("opacity", 0);
 
   // 🟢 Generate heatmap cells with tooltips
-  svg.selectAll(".day")
+  svg
+    .selectAll(".day")
     .data(days)
     .enter()
     .append("rect")
     .attr("class", "day")
     .attr("width", cellSize)
     .attr("height", cellSize)
-    .attr("x", d => d3.timeWeek.count(startDate, d) * (cellSize + 2))
-    .attr("y", d => d.getDay() * (cellSize + 2))
-    .attr("fill", d => colorScale(dataMap.get(formatTime(d)) || 0))
+    .attr("x", (d) => d3.timeWeek.count(startDate, d) * (cellSize + 2))
+    .attr("y", (d) => d.getDay() * (cellSize + 2))
+    .attr("fill", (d) => colorScale(dataMap.get(formatTime(d)) || 0))
     .on("mouseover", function (event, d) {
       const checkins = dataMap.get(formatTime(d)) || 0;
       tooltip
@@ -199,6 +209,4 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
       tooltip.style("opacity", 0);
     });
 }
-
-
 </script>
