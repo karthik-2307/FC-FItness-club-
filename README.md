@@ -9,8 +9,8 @@ The **Fitness Club App** is a feature-rich platform designed for fitness enthusi
 ### 🏋️‍♂️ Fitness Tracking
 
 - Log and track workouts with detailed progress reports.
-- Set fitness goals and receive AI-powered insights.
-- Monitor weight, strength, and endurance improvements.
+- Set fitness goals.
+- Monitor weight, strength, and endurance improvements with the difficulty levels.
 
 ### 🍎 Diet & Nutrition Planning
 
@@ -23,21 +23,13 @@ The **Fitness Club App** is a feature-rich platform designed for fitness enthusi
 - Share workout updates, diet tips, and fitness achievements.
 - Follow and engage with friends, trainers, and fitness influencers.
 - Like and comment on posts, just like Instagram.
+- comminicate in groups as well as with individuals.
 
 ### 🏆 Challenges & Leaderboards
 
 - Participate in fitness challenges and earn rewards.
 - Climb the leaderboard and compete with others.
 
-### 🎥 Live Workouts & Tutorials
-
-- Access guided workout videos and expert training sessions.
-- Get fitness advice from professionals in real-time.
-
-### 📊 Progress Analytics
-
-- View detailed analytics on your fitness journey.
-- Track personal milestones and improvements over time.
 
 ## Installation
 
