@@ -43,8 +43,8 @@ eventBus.on("checkedin", async () => {
   await updateYear();
 });
 onMounted(async () => {
-  userEmail.value = await fetchUserEmail();
-  console.log("User Email:", userEmail.value);
+  userEmail.value = await fetchUserEmail;
+  // console.log("User Email:", userEmail.value);
 
   await fetchWorkouts();
   await updateYear();
@@ -72,7 +72,7 @@ async function fetchWorkouts() {
   availableWorkouts.value = [
     ...new Set(workoutData.map((entry) => entry.workout_name)),
   ];
-  console.log("Fetched Workouts:", availableWorkouts.value);
+  // console.log("Fetched Workouts:", availableWorkouts.value);
 
   await updateYear();
 }

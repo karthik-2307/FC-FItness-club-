@@ -72,7 +72,7 @@
       console.error("Error inserting username:", error);
       submissionError.value = "Error submitting username. Please try again.";
     } else {
-      console.log("Username submitted:", userName.value);
+      // console.log("Username submitted:", userName.value);
       overlay.value = false; 
     }
   };

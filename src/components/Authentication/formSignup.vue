@@ -100,7 +100,7 @@ const signUp = async () => {
   }
   try {
     const msg = await userStore.emailAndPasswordSignUp(email.value, password.value);
-    console.log(msg);
+    // console.log(msg);
   } catch (error) {
     errorMessage.value = error.message || 'Sign-up failed. Try again.';
   }
