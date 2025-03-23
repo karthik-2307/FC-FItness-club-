@@ -87,7 +87,7 @@ const formatDate = (date: string) => {
 };
 
 const updateWorkoutCheckins = async () => {
-  const email = await fetchUserEmail();
+  const email = await fetchUserEmail;
   if (!email) return;
 
   let { data: workout_checkins, error } = await supabase
@@ -226,8 +226,8 @@ const toggleCheckin = async (workout: string, date: string) => {
     }
   });
   longest_streak.value[workout] = Math.max(long, streak);
-  console.log(longest_streak.value[workout]);
-  const email = await fetchUserEmail();
+  // console.log(longest_streak.value[workout]);
+  const email = await fetchUserEmail;
 
   await supabase
     .from("workout_checkins")
