@@ -1,33 +1,10 @@
 <template>
-  <v-app >
-    <!-- Navigation Bar -->
-    <v-app-bar app dark>
-      <v-toolbar-title class="d-flex align-center">
-        <v-img 
-          src="../assets/dumbbell-clipart-etsy-3.ico"
-          max-height="30" 
-          max-width="30" 
-          class="mr-2"
-        ></v-img>
-        Fitness Club
-      </v-toolbar-title>
-      <v-spacer></v-spacer>
-      <v-btn icon @click="toggleTheme">
-  <v-icon>{{ theme.global.current.value.dark  ? 'mdi-weather-sunny' : 'mdi-weather-night' }}</v-icon>
-</v-btn>
-
-      <v-btn @click="logout"><v-icon>mdi-logout</v-icon></v-btn>
-    </v-app-bar>
-
-    <!-- Main Content -->
-    <v-container fluid class="main-content">
+    <v-container  style="height: 100%;">
       <workout-check-in v-if="activeSection === 'checkin'" />
       <my-workouts v-if="activeSection === 'workouts'" />
       <heatmap v-if="activeSection === 'analysis'" />
       <user-profile v-if="activeSection === 'profile'" />
     </v-container>
-
-    <!-- Bottom Navigation -->
     <v-bottom-navigation v-model="activeNav" color="primary" grow>
       <v-btn @click="activeSection = 'checkin'">
         <v-icon>mdi-calendar-check</v-icon>
@@ -37,8 +14,6 @@
         <v-icon>mdi-dumbbell</v-icon>
         Workouts
       </v-btn>
-      
-      <!-- Central Plus Button -->
       <v-btn class="add-workout-btn" @click="dialog = true">
         <v-icon size="36">mdi-plus</v-icon>
       </v-btn>
@@ -52,8 +27,6 @@
         Profile
       </v-btn>
     </v-bottom-navigation>
-
-    <!-- Add Workout Dialog -->
     <v-dialog v-model="dialog" max-width="400" persistent>
       <v-card>
         <v-card-title class="text-h6">Add Workout</v-card-title>
@@ -100,7 +73,6 @@
         </v-card-actions>
       </v-card>
     </v-overlay>
-  </v-app>
 </template>
 
 <script setup lang="ts">
@@ -214,7 +186,5 @@ const closeDialog = () => {
   height: 100vh;
 }
 
-.main-content {
-  margin-top: 10%;
-}
+
 </style>
