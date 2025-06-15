@@ -71,7 +71,7 @@ const routes = [
         path: "auth/callback",
         name: "AuthCallback",
         beforeEnter(to, from, next) {
-          next('https://fc2307.netlify.app/'); // replace with actual route or external URL
+          next(''); // replace with actual route or external URL
         }
       },
       {
