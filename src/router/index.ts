@@ -70,7 +70,9 @@ const routes = [
       {
         path: "auth/callback",
         name: "AuthCallback",
-        component: () => import("@/views/Home.vue")
+        beforeEnter(to, from, next) {
+          next('https://fc2307.netlify.app/'); // replace with actual route or external URL
+        }
       },
       {
         path:'newuser',
