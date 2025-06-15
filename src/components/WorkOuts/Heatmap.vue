@@ -1,5 +1,6 @@
 <template>
-   <v-row justify="center">
+  <v-container>
+    <v-row justify="center">
       <v-col cols="12" md="6">
         <v-select
           v-model="selectedYear"
@@ -11,43 +12,59 @@
         ></v-select>
       </v-col>
     </v-row>
-  <div>
-    <div v-for="(workout, index) in availableWorkouts" :key="workout">
-      <v-container>
-        <h3>{{ workout }}</h3>
-      <div :ref="(el) => setHeatmapRef(el, index)"></div>
-      <v-card >
-      <div :ref="(el) => setHeatmapRef(el, index)"></div>
-      </v-card>
-      </v-container>
-      
-
+    <div v-if="availableWorkouts.length === 0" class="text-center pa-4">
+      <v-alert type="info">
+        No workouts found. Start adding workouts to see your activity heatmap!
+      </v-alert>
     </div>
-  </div>
+    <div v-else>
+      <div v-for="(workout, index) in availableWorkouts" :key="workout">
+        <v-container>
+          <h3 class="text-h6 mb-4">{{ workout }}</h3>
+          <v-card class="pa-4">
+            <div :ref="(el) => setHeatmapRef(el, index)" class="heatmap-container"></div>
+          </v-card>
+        </v-container>
+      </div>
+    </div>
+  </v-container>
 </template>
 
 <script setup>
-import { onMounted, ref, nextTick } from "vue";
+import { onMounted, ref, nextTick, onUnmounted } from "vue";
 import * as d3 from "d3";
 import { supabase } from "@/composables/supabase";
 import { fetchUserEmail } from "@/composables/userEmail";
 import { eventBus } from "@/stores/eventbus";
+
 const heatmapContainers = ref([]);
 const data = ref({});
 const availableYears = ref([2022, 2023, 2024, 2025]);
 const selectedYear = ref("current");
 const userEmail = ref("");
 const availableWorkouts = ref([]);
-eventBus.on("checkedin", async () => {
-  await fetchWorkouts();
-  await updateYear();
-});
-onMounted(async () => {
-  userEmail.value = await fetchUserEmail;
-  // console.log("User Email:", userEmail.value);
+const loading = ref(false);
 
+// Event listeners
+const handleCheckin = async () => {
   await fetchWorkouts();
   await updateYear();
+};
+
+eventBus.on("checkedin", handleCheckin);
+
+onMounted(async () => {
+  try {
+    userEmail.value = await fetchUserEmail();
+    await fetchWorkouts();
+    await updateYear();
+  } catch (error) {
+    console.error("Error initializing heatmap:", error);
+  }
+});
+
+onUnmounted(() => {
+  eventBus.off("checkedin", handleCheckin);
 });
 
 const setHeatmapRef = (el, index) => {
@@ -59,68 +76,77 @@ const setHeatmapRef = (el, index) => {
 async function fetchWorkouts() {
   if (!userEmail.value) return;
 
-  const { data: workoutData, error } = await supabase
-    .from("workout_checkins")
-    .select("workout_name")
-    .eq("email_address", userEmail.value);
+  try {
+    const { data: workoutData, error } = await supabase
+      .from("workout_checkins")
+      .select("workout_name")
+      .eq("email_address", userEmail.value);
 
-  if (error) {
+    if (error) throw error;
+
+    availableWorkouts.value = [
+      ...new Set(workoutData.map((entry) => entry.workout_name)),
+    ];
+  } catch (error) {
     console.error("Error fetching workouts:", error);
-    return;
   }
-
-  availableWorkouts.value = [
-    ...new Set(workoutData.map((entry) => entry.workout_name)),
-  ];
-  // console.log("Fetched Workouts:", availableWorkouts.value);
-
-  await updateYear();
 }
 
 async function fetchHeatmapData(workout, startDate, endDate) {
-  const { data: checkinData, error } = await supabase
-    .from("workout_checkins")
-    .select("checkin_dates")
-    .eq("email_address", userEmail.value)
-    .eq("workout_name", workout);
+  try {
+    const { data: checkinData, error } = await supabase
+      .from("workout_checkins")
+      .select("checkin_dates")
+      .eq("email_address", userEmail.value)
+      .eq("workout_name", workout);
 
-  if (error) {
-    console.error("Error fetching data:", error);
+    if (error) throw error;
+
+    let dataset = [];
+    checkinData.forEach((entry) => {
+      entry.checkin_dates.forEach((date) => {
+        if (new Date(date) >= startDate && new Date(date) <= endDate) {
+          dataset.push({ date, value: 1 });
+        }
+      });
+    });
+
+    return dataset;
+  } catch (error) {
+    console.error("Error fetching heatmap data:", error);
     return [];
   }
-
-  let dataset = [];
-  checkinData.forEach((entry) => {
-    entry.checkin_dates.forEach((date) => {
-      if (new Date(date) >= startDate && new Date(date) <= endDate) {
-        dataset.push({ date, value: 1 });
-      }
-    });
-  });
-
-  return dataset;
 }
 
 async function updateYear() {
-  const today = new Date();
-  let startDate, endDate;
+  if (loading.value) return;
+  loading.value = true;
 
-  if (selectedYear.value === "current") {
-    startDate = new Date();
-    startDate.setFullYear(today.getFullYear() - 1);
-    startDate.setDate(today.getDate() + 1);
-    endDate = today;
-  } else {
-    startDate = new Date(`${selectedYear.value}-01-01`);
-    endDate = new Date(`${selectedYear.value}-12-31`);
+  try {
+    const today = new Date();
+    let startDate, endDate;
+
+    if (selectedYear.value === "current") {
+      startDate = new Date();
+      startDate.setFullYear(today.getFullYear() - 1);
+      startDate.setDate(today.getDate() + 1);
+      endDate = today;
+    } else {
+      startDate = new Date(`${selectedYear.value}-01-01`);
+      endDate = new Date(`${selectedYear.value}-12-31`);
+    }
+
+    for (const workout of availableWorkouts.value) {
+      data.value[workout] = await fetchHeatmapData(workout, startDate, endDate);
+    }
+
+    await nextTick();
+    renderHeatmaps(startDate, endDate);
+  } catch (error) {
+    console.error("Error updating year:", error);
+  } finally {
+    loading.value = false;
   }
-
-  for (const workout of availableWorkouts.value) {
-    data.value[workout] = await fetchHeatmapData(workout, startDate, endDate);
-  }
-
-  await nextTick();
-  renderHeatmaps(startDate, endDate);
 }
 
 function renderHeatmaps(startDate, endDate) {
@@ -142,7 +168,9 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
   const width = 53 * (cellSize + 2);
   const height = 7 * (cellSize + 2);
 
+  // Clear previous SVG
   d3.select(container).select("svg").remove();
+  d3.select(container).select(".tooltip").remove();
 
   const svg = d3
     .select(container)
@@ -163,7 +191,7 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
   const formatMonthFull = d3.timeFormat("%B");
   const dataMap = new Map(workoutData.map((d) => [d.date, d.value]));
 
-  // 🟢 Add month labels
+  // Add month labels
   const months = d3.timeMonths(startDate, endDate);
   svg
     .selectAll(".month-label")
@@ -178,21 +206,23 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
     .attr("font-weight", "bold")
     .text((d) => formatMonthFull(d));
 
-  // 🟢 Create Tooltip
+  // Create Tooltip
   const tooltip = d3
     .select(container)
     .append("div")
+    .attr("class", "tooltip")
     .style("position", "absolute")
-    .style("background", "rgba(0, 0, 0, 0.7)")
+    .style("background", "rgba(0, 0, 0, 0.8)")
     .style("color", "#fff")
-    .style("padding", "5px 10px")
-    .style("border-radius", "5px")
+    .style("padding", "8px 12px")
+    .style("border-radius", "4px")
     .style("font-size", "12px")
     .style("pointer-events", "none")
     .style("opacity", 0)
-    .style( "z-index", 1000);
+    .style("z-index", 9999)
+    .style("box-shadow", "0 2px 4px rgba(0,0,0,0.2)");
 
-  // 🟢 Generate heatmap cells with tooltips
+  // Generate heatmap cells
   svg
     .selectAll(".day")
     .data(days)
@@ -210,8 +240,7 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
         .html(`${formatTime(d)}<br>Check-ins: ${checkins}`)
         .style("left", `${event.pageX + 10}px`)
         .style("top", `${event.pageY - 20}px`)
-        .style("opacity", 1)
-        .style( "z-index", 1000);
+        .style("opacity", 1);
     })
     .on("mousemove", function (event) {
       tooltip
@@ -219,8 +248,19 @@ function renderHeatmap(container, workoutData, startDate, endDate) {
         .style("top", `${event.pageY - 20}px`);
     })
     .on("mouseout", function () {
-
-      tooltip.style("opacity", 0)
+      tooltip.style("opacity", 0);
     });
 }
 </script>
+
+<style scoped>
+.heatmap-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 4px;
+}
+
+.tooltip {
+  transition: opacity 0.2s ease;
+}
+</style>
