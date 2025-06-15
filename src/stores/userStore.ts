@@ -23,10 +23,7 @@ const loginWithGoogle = async () => {
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
     options: {
-      redirectTo:
-        import.meta.env.MODE === "development"
-          ? "http://localhost:5173/auth/callback"
-          : "https://fc2307.netlify.app/auth/callback",
+      redirectTo: window.location.origin + "/auth/callback",
     },
   });
 
