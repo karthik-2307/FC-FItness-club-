@@ -19,21 +19,25 @@ export const useUserStore = defineStore("user", () => {
       throw new Error("Login failed");
     }
   };
-  const loginWithGoogle = async () => {
-    const { data, error } = await supabase.auth.signInWithOAuth({
-      provider: "google",
-      options: {
-        redirectTo: window.location.origin, // Redirects back to the app after login
-      },
-    });
+const loginWithGoogle = async () => {
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo:
+        import.meta.env.MODE === "development"
+          ? "http://localhost:5173/auth/callback"
+          : "https://fc2307.netlify.app/auth/callback",
+    },
+  });
 
-    if (error) {
-      console.error("Google Login error:", error.message);
-      return error.message;
-    }
+  if (error) {
+    console.error("Google Login error:", error.message);
+    return error.message;
+  }
 
-    return data;
-  };
+  return data;
+};
+
   const emailAndPasswordLogin = async (email: string, password: string) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
