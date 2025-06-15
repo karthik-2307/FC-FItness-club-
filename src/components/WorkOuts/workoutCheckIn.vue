@@ -50,26 +50,14 @@ import { eventBus } from "@/stores/eventbus";
 // Define workouts & check-in
 const today_date = ref(new Date().toISOString().split("T")[0]);
 const longest_streak = ref<Record<string, number>>({});
-const days_months = new Map<string, number>();
 const workouts = ref<{ name: string; streak: number }[]>([]);
 const checkinData = ref<Record<string, string[]>>({});
-setInterval(() => {
+
+// Update today's date only when needed
+const updateTodayDate = () => {
   today_date.value = new Date().toISOString().split("T")[0];
-  new Date().toISOString().split("T")[0];
-}, 1000);
-//updating months with the number of days
-days_months.set("01", 31);
-days_months.set("02", 28);
-days_months.set("03", 31);
-days_months.set("04", 30);
-days_months.set("05", 31);
-days_months.set("06", 30);
-days_months.set("07", 31);
-days_months.set("08", 31);
-days_months.set("09", 30);
-days_months.set("10", 31);
-days_months.set("11", 30);
-days_months.set("12", 31);
+};
+
 // Get current week dates
 const weekDates = computed(() => {
   const today = new Date();
@@ -87,23 +75,24 @@ const formatDate = (date: string) => {
 };
 
 const updateWorkoutCheckins = async () => {
-  const email = await fetchUserEmail;
+  const email = await fetchUserEmail();
   if (!email) return;
 
   let { data: workout_checkins, error } = await supabase
     .from("workout_checkins")
-    .select("workout_name, checkin_dates,current_streak,longest_streak")
+    .select("workout_name, checkin_dates, current_streak, longest_streak")
     .eq("email_address", email)
     .order("id", { ascending: false });
+
   if (error) {
     console.error("Error fetching workouts:", error);
     return;
   }
-  workouts.value =
-    workout_checkins?.map((workout) => ({
-      name: workout.workout_name,
-      streak: workout.current_streak,
-    })) || [];
+
+  workouts.value = workout_checkins?.map((workout) => ({
+    name: workout.workout_name,
+    streak: workout.current_streak,
+  })) || [];
 
   workout_checkins?.forEach((workout) => {
     checkinData.value[workout.workout_name] = workout.checkin_dates || [];
@@ -111,143 +100,95 @@ const updateWorkoutCheckins = async () => {
   });
 };
 
+const calculateStreak = (dates: string[]): { current: number; longest: number } => {
+  if (!dates.length) return { current: 0, longest: 0 };
+
+  const sortedDates = [...dates].sort();
+  let currentStreak = 1;
+  let longestStreak = 1;
+  let tempStreak = 1;
+
+  for (let i = 1; i < sortedDates.length; i++) {
+    const prevDate = new Date(sortedDates[i - 1]);
+    const currDate = new Date(sortedDates[i]);
+    
+    // Check if dates are consecutive
+    const diffTime = Math.abs(currDate.getTime() - prevDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 1) {
+      tempStreak++;
+      currentStreak = Math.max(currentStreak, tempStreak);
+    } else {
+      longestStreak = Math.max(longestStreak, tempStreak);
+      tempStreak = 1;
+    }
+  }
+  
+  longestStreak = Math.max(longestStreak, tempStreak);
+  return { current: currentStreak, longest: longestStreak };
+};
+
 const toggleCheckin = async (workout: string, date: string) => {
   if (!checkinData.value[workout]) {
     checkinData.value[workout] = [];
   }
 
+  // Toggle the date in the checkin array
   if (checkinData.value[workout].includes(date)) {
-    checkinData.value = {
-      ...checkinData.value,
-      [workout]: checkinData.value[workout].filter((d) => d !== date),
-    };
+    checkinData.value[workout] = checkinData.value[workout].filter(d => d !== date);
   } else {
     checkinData.value[workout].push(date);
   }
-  let current_streak = 0;
-  let current_day: number = -1;
-  checkinData.value[workout].sort();
-  checkinData.value[workout].reverse();
 
-  checkinData.value[workout].forEach((element) => {
-    let day = parseInt(element[8] + element[9]);
-    if (current_day == -1) {
-      current_day = day;
-      current_streak++;
-    } else {
-      if (day == current_day - 1) {
-        current_streak++;
-        current_day = day;
-      } else if (current_day == 1) {
-        let month = element[5] + element[6];
-        let year = parseInt(element[0] + element[1] + element[2] + element[3]);
-        if (month == "02" && year % 4 != 0 && day == 28) {
-          current_streak++;
-          current_day = day;
-        } else if (
-          month == "02" &&
-          ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) &&
-          day == 29
-        ) {
-          current_streak++;
-          current_day = day;
-        } else if (
-          (month == "01" ||
-            month == "03" ||
-            month == "05" ||
-            month == "07" ||
-            month == "08" ||
-            month == "10" ||
-            month == "12") &&
-          day == 31
-        ) {
-          current_streak++;
-          current_day = day;
-        } else if (
-          (month == "04" || month == "06" || month == "09" || month == "11") &&
-          day == 30
-        ) {
-          current_streak++;
-          current_day = day;
-        }
-      } else {
-        return;
-      }
-    }
-  });
-  let long = 0,streak=0;
-  current_day=-1
-  checkinData.value[workout].forEach((element) => {
-    let day = parseInt(element[8] + element[9]);
-    if (current_day == -1) {
-      current_day = day;
-      long++;
-    } else {
-      if (day == current_day - 1) {
-        long++;
-        current_day = day;
-      } else if (current_day == 1) {
-        let month = element[5] + element[6];
-        let year = parseInt(element[0] + element[1] + element[2] + element[3]);
-        if (month == "02" && year % 4 != 0 && day == 28) {
-          long++;
-          current_day = day;
-        } else if (
-          month == "02" &&
-          ((year % 4 === 0 && year % 100 !== 0) || year % 400 === 0) &&
-          day == 29
-        ) {
-          long++;
-          current_day = day;
-        } else if (
-          (month == "01" ||
-            month == "03" ||
-            month == "05" ||
-            month == "07" ||
-            month == "08" ||
-            month == "10" ||
-            month == "12") &&
-          day == 31
-        ) {
-          long++;
-          current_day = day;
-        } else if (
-          (month == "04" || month == "06" || month == "09" || month == "11") &&
-          day == 30
-        ) {
-          long++;
-          current_day = day;
-        }
-      } else {
-        streak=Math.max(long,streak);
-        current_day = day;
-        long = 1;
-      }
-    }
-  });
-  streak=Math.max(long,streak);
-  longest_streak.value[workout] = Math.max(long, streak);
-  const email =  fetchUserEmail;
+  // Calculate streaks
+  const { current, longest } = calculateStreak(checkinData.value[workout]);
+  longest_streak.value[workout] = longest;
 
-  await supabase
+  const email = await fetchUserEmail();
+  if (!email) return;
+
+  // Update the database
+  const { error } = await supabase
     .from("workout_checkins")
     .update({
       checkin_dates: checkinData.value[workout],
-      current_streak: current_streak,
-      longest_streak: longest_streak.value[workout],
+      current_streak: current,
+      longest_streak: longest,
     })
     .eq("email_address", email)
     .eq("workout_name", workout);
+
+  if (error) {
+    console.error("Error updating checkin:", error);
+    return;
+  }
+
   eventBus.emit("checkedin");
   updateWorkoutCheckins();
 };
+
+// Event listeners
 eventBus.on("WorkOutAdded", () => {
   updateWorkoutCheckins();
 });
+
 eventBus.on("checkedin", () => {
   updateWorkoutCheckins();
 });
-onMounted(updateWorkoutCheckins);
+
+// Initialize
+onMounted(() => {
+  updateWorkoutCheckins();
+  // Update today's date at midnight
+  const now = new Date();
+  const tomorrow = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+  const timeToMidnight = tomorrow.getTime() - now.getTime();
+  setTimeout(() => {
+    updateTodayDate();
+    setInterval(updateTodayDate, 24 * 60 * 60 * 1000);
+  }, timeToMidnight);
+});
 </script>
 
 <style>

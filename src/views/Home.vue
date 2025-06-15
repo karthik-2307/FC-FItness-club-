@@ -104,7 +104,22 @@ const toggleTheme = () => {
   eventBus.emit('themeChanged');
 };
 
-const { handleSubmit, resetForm } = useForm();
+const { handleSubmit, resetForm } = useForm({
+  validationSchema: {
+    name(value) {
+      if (value?.length >= 2) return true;
+      return "Name needs to be at least 2 characters.";
+    },
+    select(value) {
+      if (value) return true;
+      return "Select an item.";
+    },
+    minutes(value) {
+      if (value && value > 0) return true;
+      return "Enter a valid number of minutes.";
+    },
+  },
+});
 const name = useField("name");
 const select = useField("select");
 const minutes = useField("minutes");
@@ -114,10 +129,32 @@ const logout = () => {
 };
 
 const submit = handleSubmit(async (values) => {
-  const { error } = await supabase.from("workoutroutines").insert([{ ...values }]);
-  if (!error) {
+  const email = await fetchUserEmail();
+  const now = new Date();
+  const currentDateTime = now.toISOString().replace("T", " ").slice(0, 19);
+
+  const { error } = await supabase.from("workoutroutines").insert([{
+    email_address: email,
+    workout_name: values.name,
+    duration_minutes: values.minutes,
+    difficulty_level: values.select,
+    date: currentDateTime,
+  }]);
+
+  const { error: checkinError } = await supabase.from("workout_checkins").insert([{
+    email_address: email,
+    workout_name: values.name,
+    current_streak: 0,
+    longest_streak: 0,
+    checkin_dates: [],
+  }]);
+
+  if (!error && !checkinError) {
     resetForm();
     dialog.value = false;
+    eventBus.emit("WorkOutAdded");
+  } else {
+    console.error("Error adding workout:", error || checkinError);
   }
 });
 
@@ -137,15 +174,26 @@ const closeDialog = () => {
   };
   
 
-  const isUserNameExists=async()=>{
-    const { data: profiles, error }= await supabase.from("profiles").select("user_name").eq('email_address',fetchUserEmail);
-    if(profiles && profiles[0].user_name==null)
-  {
-    overlay.value=true;
-  }
-  else
-  overlay.value=false;
-  }
+  const isUserNameExists = async () => {
+    const email = await fetchUserEmail();
+    const { data: profiles, error } = await supabase
+      .from("profiles")
+      .select("user_name")
+      .eq('email_address', email)
+      .single();
+
+    if (error) {
+      console.error("Error checking username:", error);
+      return;
+    }
+
+    if (!profiles || !profiles.user_name) {
+      overlay.value = true;
+    } else {
+      overlay.value = false;
+    }
+  };
+  
   const isValidUserName = computed(() => {
     return userName.value.length >= 3 && !userNames.value.includes(userName.value);
   });
