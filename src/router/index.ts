@@ -68,6 +68,11 @@ const routes = [
         beforeEnter: loginGuard,
       },
       {
+        path: "auth/callback",
+        name: "AuthCallback",
+        component: () => import("@/components/Authentication/logIn.vue""),
+      },
+      {
         path:'newuser',
         name:'newuser',
         component:()=>import('@/components/Authentication/newUserName.vue')
