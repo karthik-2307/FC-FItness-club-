@@ -8,6 +8,7 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AddWorkout: typeof import('./src/components/WorkOuts/addWorkout.vue')['default']
+    AuthCallback: typeof import('./src/components/Authentication/AuthCallback.vue')['default']
     Dateview: typeof import('./src/components/test/dateview.vue')['default']
     EmailLogin: typeof import('./src/components/Authentication/emailLogin.vue')['default']
     FormLogin: typeof import('./src/components/Authentication/formLogin.vue')['default']

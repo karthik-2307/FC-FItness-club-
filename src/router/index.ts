@@ -76,7 +76,12 @@ const routes = [
         path:'myWorkouts',
         name:'myWorkouts',
         component:()=>import('@/components/WorkOuts/myWorkouts.vue')
-      }
+      },
+       {
+    path: "auth/callback",
+    name: "AuthCallback",
+    component: () => import("@/components/Authentication/AuthCallback.vue"),
+  }
     ],
   },
 ];
