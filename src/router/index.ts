@@ -70,7 +70,7 @@ const routes = [
       {
         path: "auth/callback",
         name: "AuthCallback",
-        component: () => import("@/components/Authentication/logIn.vue""),
+        component: () => import("@/views/Home.vue")
       },
       {
         path:'newuser',
